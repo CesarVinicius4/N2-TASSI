@@ -22,7 +22,7 @@ class MenuDrawer extends StatelessWidget {
               MaterialPageRoute(builder: (_) => CadastrosScreen()),
             ),
           ),
-          ListTile(
+          ListTile( 
             title: const Text('Empréstimos'),
             onTap: () => Navigator.pushReplacement(
               context,
