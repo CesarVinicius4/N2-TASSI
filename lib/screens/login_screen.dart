@@ -11,52 +11,91 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      // Login não deve ter AppBar com menu
       appBar: AppBar(
         backgroundColor: const Color(0xFF1565C0),
-        leading: const Icon(Icons.menu, color: Color(0xFFFFFFFF)),
+        title: const Text(
+          'BiblioSoft',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'BiblioSoft',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
-            ),
-            const Text(
-              'ACESSAR O SISTEMA',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 40),
-            TextField(
-              controller: loginController,
-              decoration: const InputDecoration(labelText: 'LOGIN'),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: senhaController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'SENHA'),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1565C0),
-                padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 14),
+
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 30),
+
+              const Text(
+                'ACESSAR O SISTEMA',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1565C0),
+                ),
               ),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => CadastrosScreen()),
-                );
-              },
-              child: const Text(
-                'CONTINUAR',
-                style: TextStyle(fontWeight: FontWeight.bold),
+
+              const SizedBox(height: 40),
+
+              TextField(
+                controller: loginController,
+                decoration: InputDecoration(
+                  labelText: 'LOGIN',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: senhaController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'SENHA',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 35),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1565C0),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => CadastrosScreen()),
+                    );
+                  },
+                  child: const Text(
+                    'CONTINUAR',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
