@@ -18,7 +18,7 @@ class ApiService {
     final url = Uri.parse("${AppConfig.baseUrl}$endpoint");
 
     try {
-      print('🔵 GET request to: $url');
+      print('GET request to: $url');
       
       final headers = {
         "Content-Type": "application/json",

@@ -37,7 +37,7 @@ class LivroController {
     } catch (e) {
       _error = 'Erro de conexão: $e';
       _isLoading = false;
-      print('❌ Erro ao buscar livros: $e');
+      print(' Erro ao buscar livros: $e');
       return false;
     }
   }
@@ -66,7 +66,7 @@ class LivroController {
     } catch (e) {
       _error = 'Erro de conexão: $e';
       _isLoading = false;
-      print('❌ Erro ao adicionar livro: $e');
+      print(' Erro ao adicionar livro: $e');
       return false;
     }
   }
@@ -91,7 +91,7 @@ class LivroController {
     } catch (e) {
       _error = 'Erro de conexão: $e';
       _isLoading = false;
-      print('❌ Erro ao excluir livro: $e');
+      print(' Erro ao excluir livro: $e');
       return false;
     }
   }
@@ -126,7 +126,7 @@ class LivroController {
     } catch (e) {
       _error = 'Erro de conexão: $e';
       _isLoading = false;
-      print('❌ Erro ao alterar livro: $e');
+      print(' Erro ao alterar livro: $e');
       return false;
     }
   }

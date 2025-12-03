@@ -102,7 +102,7 @@ class _CadastrosScreenState extends State<CadastrosScreen> {
                   await _controller.adicionarLivro(nome, quantidade);
 
               if (sucesso) {
-                _mostrarSucesso("✅ Livro adicionado com sucesso!");
+                _mostrarSucesso("Livro adicionado com sucesso!");
                 setState(() {});
               } else {
                 _mostrarErro(_controller.error ?? "Erro ao adicionar livro");
@@ -165,7 +165,7 @@ class _CadastrosScreenState extends State<CadastrosScreen> {
                   await _controller.alterarLivro(codigo, nome, quantidade);
 
               if (sucesso) {
-                _mostrarSucesso("✅ Livro atualizado!");
+                _mostrarSucesso("Livro atualizado!");
                 setState(() {});
               } else {
                 _mostrarErro(_controller.error ?? "Erro ao alterar livro");
@@ -198,7 +198,7 @@ class _CadastrosScreenState extends State<CadastrosScreen> {
               bool sucesso = await _controller.excluirLivro(codigo);
 
               if (sucesso) {
-                _mostrarSucesso("✅ Livro removido!");
+                _mostrarSucesso("Livro removido!");
                 setState(() {});
               } else {
                 _mostrarErro(_controller.error ?? "Erro ao excluir livro");

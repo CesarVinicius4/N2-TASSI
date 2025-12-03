@@ -36,7 +36,7 @@ class AuthController {
         if (token != null) {
           // Salvar token de forma segura
           await storage.write(key: 'token', value: token);
-          print('✅ Registro bem-sucedido! Token salvo.');
+          print('Registro bem-sucedido! Token salvo.');
           return true;
         }
       }
@@ -78,7 +78,7 @@ class AuthController {
         if (token != null) {
           // Salvar token de forma segura
           await storage.write(key: 'token', value: token);
-          print('✅ Login bem-sucedido! Token salvo.');
+          print('Login bem-sucedido! Token salvo.');
           return true;
         }
       }
@@ -94,7 +94,7 @@ class AuthController {
   // Fazer logout
   Future<void> logout() async {
     await storage.delete(key: 'token');
-    print('✅ Logout realizado.');
+    print('Logout realizado.');
   }
 
   // Verificar se já tem token

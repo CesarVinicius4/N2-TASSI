@@ -28,7 +28,7 @@ class EmprestimoController {
       }
 
       final url = Uri.parse("${AppConfig.baseUrl}/emprestimos");
-      print('🔵 GET request to: $url');
+      print('GET request to: $url');
 
       final response = await http.get(
         url,
@@ -45,7 +45,7 @@ class EmprestimoController {
         final List<dynamic> data = jsonDecode(response.body);
         _emprestimos.clear();
         _emprestimos.addAll(data.map((e) => Emprestimo.fromJson(e)).toList());
-        print('✅ ${_emprestimos.length} empréstimos carregados');
+        print('${_emprestimos.length} empréstimos carregados');
       } else {
         _erro = 'Erro ao carregar: ${response.statusCode}';
         print('❌ Erro: $_erro');
@@ -91,7 +91,7 @@ class EmprestimoController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final novoEmprestimo = Emprestimo.fromJson(jsonDecode(response.body));
         _emprestimos.add(novoEmprestimo);
-        print('✅ Empréstimo adicionado!');
+        print('Empréstimo adicionado!');
         return true;
       } else {
         _erro = 'Erro ao adicionar: ${response.statusCode}';
@@ -129,7 +129,7 @@ class EmprestimoController {
 
       if (response.statusCode == 204 || response.statusCode == 200) {
         _emprestimos.removeWhere((emp) => emp.id == id);
-        print('✅ Empréstimo removido!');
+        print('Empréstimo removido!');
         return true;
       } else {
         _erro = 'Erro ao remover: ${response.statusCode}';
@@ -181,7 +181,7 @@ class EmprestimoController {
         if (index != -1) {
           _emprestimos[index] = emprestimoAtualizado;
         }
-        print('✅ Empréstimo atualizado!');
+        print('Empréstimo atualizado!');
         return true;
       } else {
         _erro = 'Erro ao atualizar: ${response.statusCode}';

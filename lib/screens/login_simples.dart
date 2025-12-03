@@ -35,7 +35,7 @@ class _LoginSimplesState extends State<LoginSimples> {
     
     if (sucesso) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ Login bem-sucedido!'), backgroundColor: Colors.green),
+        const SnackBar(content: Text('Login bem-sucedido!'), backgroundColor: Colors.green),
       );
       widget.onLoginSuccess();
     } else {
@@ -73,7 +73,7 @@ class _LoginSimplesState extends State<LoginSimples> {
     
     if (sucesso) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ Usuário criado com sucesso!'), backgroundColor: Colors.green),
+        const SnackBar(content: Text('Usuário criado com sucesso!'), backgroundColor: Colors.green),
       );
       widget.onLoginSuccess();
     } else {
