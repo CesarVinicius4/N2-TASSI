@@ -3,7 +3,9 @@ import '../widgets/menu_drawer.dart';
 import '../controllers/livro_controller.dart';
 
 class CadastrosScreen extends StatefulWidget {
-  const CadastrosScreen({super.key});
+  final VoidCallback? onLogout;
+
+  const CadastrosScreen({super.key, this.onLogout});
 
   @override
   _CadastrosScreenState createState() => _CadastrosScreenState();
@@ -11,6 +13,45 @@ class CadastrosScreen extends StatefulWidget {
 
 class _CadastrosScreenState extends State<CadastrosScreen> {
   final LivroController _controller = LivroController();
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarLivros();
+  }
+
+  // Buscar livros do backend ao inicializar
+  void _carregarLivros() async {
+    bool sucesso = await _controller.buscarTodosLivros();
+    setState(() {
+      _isInitialized = true;
+    });
+    
+    if (!sucesso && mounted) {
+      _mostrarErro(_controller.error ?? "Erro ao carregar livros");
+    }
+  }
+
+  void _mostrarErro(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void _mostrarSucesso(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
   // ---------- Função para cadastrar um novo livro ----------
   void _novoLivro() {
@@ -41,14 +82,31 @@ class _CadastrosScreenState extends State<CadastrosScreen> {
             child: const Text("Cancelar"),
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _controller.adicionarLivro(
-                  nomeCtrl.text,
-                  int.tryParse(qtdCtrl.text) ?? 0,
-                );
-              });
+            onPressed: () async {
+              final nome = nomeCtrl.text.trim();
+              final quantidade = int.tryParse(qtdCtrl.text) ?? 0;
+
+              if (nome.isEmpty) {
+                _mostrarErro("Nome do livro é obrigatório");
+                return;
+              }
+
+              if (quantidade <= 0) {
+                _mostrarErro("Quantidade deve ser maior que 0");
+                return;
+              }
+
               Navigator.pop(context);
+
+              bool sucesso =
+                  await _controller.adicionarLivro(nome, quantidade);
+
+              if (sucesso) {
+                _mostrarSucesso("✅ Livro adicionado com sucesso!");
+                setState(() {});
+              } else {
+                _mostrarErro(_controller.error ?? "Erro ao adicionar livro");
+              }
             },
             child: const Text("Salvar"),
           ),
@@ -87,15 +145,31 @@ class _CadastrosScreenState extends State<CadastrosScreen> {
             child: const Text("Cancelar"),
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _controller.alterarLivro(
-                  codigo,
-                  nomeCtrl.text,
-                  int.tryParse(qtdCtrl.text) ?? 0,
-                );
-              });
+            onPressed: () async {
+              final nome = nomeCtrl.text.trim();
+              final quantidade = int.tryParse(qtdCtrl.text) ?? 0;
+
+              if (nome.isEmpty) {
+                _mostrarErro("Nome do livro é obrigatório");
+                return;
+              }
+
+              if (quantidade <= 0) {
+                _mostrarErro("Quantidade deve ser maior que 0");
+                return;
+              }
+
               Navigator.pop(context);
+
+              bool sucesso =
+                  await _controller.alterarLivro(codigo, nome, quantidade);
+
+              if (sucesso) {
+                _mostrarSucesso("✅ Livro atualizado!");
+                setState(() {});
+              } else {
+                _mostrarErro(_controller.error ?? "Erro ao alterar livro");
+              }
             },
             child: const Text("Salvar"),
           ),
@@ -106,9 +180,35 @@ class _CadastrosScreenState extends State<CadastrosScreen> {
 
   // ---------- Função excluir ----------
   void _excluirLivro(int codigo) {
-    setState(() {
-      _controller.excluirLivro(codigo);
-    });
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Confirmar exclusão"),
+        content: const Text("Tem certeza que deseja excluir este livro?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              Navigator.pop(context);
+
+              bool sucesso = await _controller.excluirLivro(codigo);
+
+              if (sucesso) {
+                _mostrarSucesso("✅ Livro removido!");
+                setState(() {});
+              } else {
+                _mostrarErro(_controller.error ?? "Erro ao excluir livro");
+              }
+            },
+            child: const Text("Excluir"),
+          ),
+        ],
+      ),
+    );
   }
 
   // ============================================================
@@ -121,76 +221,147 @@ class _CadastrosScreenState extends State<CadastrosScreen> {
       appBar: AppBar(
         title: const Text('CADASTROS'),
         backgroundColor: const Color(0xFF1565C0),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: widget.onLogout,
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
         onPressed: _novoLivro,
         child: const Icon(Icons.add),
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            // ------------------ Botões principais ------------------
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  onPressed: _controller.livros.isNotEmpty
-                      ? () => _excluirLivro(_controller.livros.last.codigo)
-                      : null,
-                  child: const Text("Excluir último"),
+            // Indicador de carregamento
+            if (_controller.isLoading)
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: CircularProgressIndicator(),
+              ),
+
+            // Mensagem de erro se houver
+            if (_controller.error != null && !_controller.isLoading)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade100,
+                    border: Border.all(color: Colors.red),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error, color: Colors.red),
+                      const SizedBox(width: 8.0),
+                      Expanded(
+                        child: Text(
+                          _controller.error!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                  onPressed: _controller.livros.isNotEmpty
-                      ? () => _alterarLivro(_controller.livros.last.codigo)
-                      : null,
-                  child: const Text("Alterar último"),
-                ),
-              ],
+              ),
+
+            const SizedBox(height: 20),
+
+            // Botão para recarregar
+            ElevatedButton.icon(
+              icon: const Icon(Icons.refresh),
+              label: const Text("Recarregar"),
+              onPressed: _carregarLivros,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            // ------------------ Lista de livros ------------------
+            // Lista de livros
             Expanded(
-              child: _controller.livros.isEmpty
+              child: !_isInitialized
                   ? const Center(
-                      child: Text(
-                        "Nenhum livro cadastrado",
-                        style: TextStyle(fontSize: 16),
-                      ),
+                      child: CircularProgressIndicator(),
                     )
-                  : ListView.separated(
-                      itemCount: _controller.livros.length,
-                      separatorBuilder: (_, __) =>
-                          const Divider(color: Colors.grey),
-                      itemBuilder: (_, index) {
-                        final livro = _controller.livros[index];
-
-                        return ListTile(
-                          title: Text("${livro.codigo} - ${livro.nome}"),
-                          subtitle: Text("Quantidade: ${livro.quantidade}"),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
+                  : _controller.livros.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () => _alterarLivro(livro.codigo),
+                              const Icon(Icons.library_books,
+                                  size: 64, color: Colors.grey),
+                              const SizedBox(height: 16),
+                              const Text(
+                                "Nenhum livro cadastrado",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
                               ),
-                              IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _excluirLivro(livro.codigo),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.add),
+                                label: const Text("Adicionar Livro"),
+                                onPressed: _novoLivro,
                               ),
                             ],
                           ),
-                        );
-                      },
-                    ),
+                        )
+                      : ListView.separated(
+                          itemCount: _controller.livros.length,
+                          separatorBuilder: (_, __) =>
+                              const Divider(color: Colors.grey),
+                          itemBuilder: (_, index) {
+                            final livro = _controller.livros[index];
+
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.blue,
+                                child: Text(
+                                  livro.codigo.toString(),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              title: Text(livro.nome),
+                              subtitle:
+                                  Text("Quantidade: ${livro.quantidade}"),
+                              trailing: PopupMenuButton(
+                                itemBuilder: (context) => [
+                                  PopupMenuItem(
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.edit, color: Colors.blue),
+                                        SizedBox(width: 8),
+                                        Text("Editar"),
+                                      ],
+                                    ),
+                                    onTap: () =>
+                                        _alterarLivro(livro.codigo),
+                                  ),
+                                  PopupMenuItem(
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.delete, color: Colors.red),
+                                        SizedBox(width: 8),
+                                        Text("Excluir"),
+                                      ],
+                                    ),
+                                    onTap: () =>
+                                        _excluirLivro(livro.codigo),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
             ),
           ],
         ),

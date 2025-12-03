@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/menu_drawer.dart';
 import '../controllers/emprestimo_controller.dart';
+import '../controllers/livro_controller.dart';
+import '../models/livro.dart';
 
 class EmprestimosScreen extends StatefulWidget {
   const EmprestimosScreen({super.key});
@@ -12,45 +14,93 @@ class EmprestimosScreen extends StatefulWidget {
 class _EmprestimosScreenState extends State<EmprestimosScreen> {
   final EmprestimoController _controller = EmprestimoController();
 
-  void _novoEmprestimo() {
+  @override
+  void initState() {
+    super.initState();
+    _carregarEmprestimos();
+  }
+
+  Future<void> _carregarEmprestimos() async {
+    await _controller.carregarEmprestimos();
+    setState(() {});
+  }
+
+  void _novoEmprestimo() async {
     TextEditingController clienteCtrl = TextEditingController();
-    TextEditingController livroCtrl = TextEditingController();
+    
+    // Buscar livros do backend
+    final livroController = LivroController();
+    await livroController.buscarTodosLivros();
+    
+    Livro? livroSelecionado;
+
+    if (!mounted) return;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Novo Empréstimo'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: clienteCtrl,
-              decoration: const InputDecoration(labelText: 'Nome do cliente'),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: const Text('Novo Empréstimo'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: clienteCtrl,
+                decoration: const InputDecoration(labelText: 'Nome do cliente'),
+              ),
+              const SizedBox(height: 16),
+              if (livroController.isLoading)
+                const CircularProgressIndicator()
+              else if (livroController.livros.isEmpty)
+                const Text('Nenhum livro disponível')
+              else
+                DropdownButton<Livro>(
+                  hint: const Text('Selecione um livro'),
+                  value: livroSelecionado,
+                  onChanged: (Livro? novoValor) {
+                    setStateDialog(() {
+                      livroSelecionado = novoValor;
+                    });
+                  },
+                  items: livroController.livros.map((livro) {
+                    return DropdownMenuItem<Livro>(
+                      value: livro,
+                      child: Text(livro.nome),
+                    );
+                  }).toList(),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
             ),
-            TextField(
-              controller: livroCtrl,
-              decoration: const InputDecoration(labelText: 'Nome do livro'),
+            ElevatedButton(
+              onPressed: (livroSelecionado == null || clienteCtrl.text.isEmpty)
+                  ? null
+                  : () async {
+                      final sucesso = await _controller.adicionarEmprestimo(
+                        clienteCtrl.text,
+                        livroSelecionado!.nome,
+                      );
+                      Navigator.pop(context);
+                      if (sucesso) {
+                        setState(() {});
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Empréstimo adicionado!')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Erro: ${_controller.erro}')),
+                        );
+                      }
+                    },
+              child: const Text('Salvar'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _controller.adicionarEmprestimo(
-                  clienteCtrl.text,
-                  livroCtrl.text,
-                );
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Salvar'),
-          ),
-        ],
       ),
     );
   }
@@ -83,15 +133,23 @@ class _EmprestimosScreenState extends State<EmprestimosScreen> {
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _controller.alterarEmprestimo(
-                  id,
-                  clienteCtrl.text,
-                  livroCtrl.text,
-                );
-              });
+            onPressed: () async {
+              final sucesso = await _controller.alterarEmprestimo(
+                id,
+                clienteCtrl.text,
+                livroCtrl.text,
+              );
               Navigator.pop(context);
+              if (sucesso) {
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Empréstimo atualizado!')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Erro: ${_controller.erro}')),
+                );
+              }
             },
             child: const Text('Salvar alterações'),
           ),
@@ -100,10 +158,18 @@ class _EmprestimosScreenState extends State<EmprestimosScreen> {
     );
   }
 
-  void _excluirEmprestimo(int id) {
-    setState(() {
-      _controller.removerEmprestimo(id);
-    });
+  void _excluirEmprestimo(int id) async {
+    final sucesso = await _controller.removerEmprestimo(id);
+    if (sucesso) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Empréstimo removido!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: ${_controller.erro}')),
+      );
+    }
   }
 
   @override
@@ -143,18 +209,27 @@ class _EmprestimosScreenState extends State<EmprestimosScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _controller.emprestimos.length,
-                itemBuilder: (context, index) {
-                  final emp = _controller.emprestimos[index];
-                  return ListTile(
-                    title: Text("${emp.id} - ${emp.livro}"),
-                    subtitle: Text("Cliente: ${emp.cliente}"),
-                  );
-                },
+            if (_controller.carregando)
+              const CircularProgressIndicator()
+            else if (_controller.emprestimos.isEmpty)
+              const Expanded(
+                child: Center(
+                  child: Text('Nenhum empréstimo encontrado'),
+                ),
+              )
+            else
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _controller.emprestimos.length,
+                  itemBuilder: (context, index) {
+                    final emp = _controller.emprestimos[index];
+                    return ListTile(
+                      title: Text("${emp.id} - ${emp.livro}"),
+                      subtitle: Text("Cliente: ${emp.cliente}"),
+                    );
+                  },
+                ),
               ),
-            ),
           ],
         ),
       ),
