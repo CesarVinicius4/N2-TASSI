@@ -48,11 +48,11 @@ class EmprestimoController {
         print('${_emprestimos.length} empréstimos carregados');
       } else {
         _erro = 'Erro ao carregar: ${response.statusCode}';
-        print('❌ Erro: $_erro');
+        print(' Erro: $_erro');
       }
     } catch (e) {
       _erro = 'Erro ao buscar empréstimos: $e';
-      print('❌ Erro: $_erro');
+      print(' Erro: $_erro');
     } finally {
       _carregando = false;
     }
@@ -73,7 +73,7 @@ class EmprestimoController {
         "livro": livro,
       });
 
-      print('🟢 POST request to: $url');
+      print('POST request to: $url');
       print('Body: $body');
 
       final response = await http.post(
@@ -95,12 +95,12 @@ class EmprestimoController {
         return true;
       } else {
         _erro = 'Erro ao adicionar: ${response.statusCode}';
-        print('❌ Erro: $_erro');
+        print('Erro: $_erro');
         return false;
       }
     } catch (e) {
       _erro = 'Erro ao adicionar empréstimo: $e';
-      print('❌ Erro: $_erro');
+      print('Erro: $_erro');
       return false;
     }
   }
@@ -115,7 +115,7 @@ class EmprestimoController {
       }
 
       final url = Uri.parse("${AppConfig.baseUrl}/emprestimos/$id");
-      print('🔴 DELETE request to: $url');
+      print('DELETE request to: $url');
 
       final response = await http.delete(
         url,
@@ -133,12 +133,12 @@ class EmprestimoController {
         return true;
       } else {
         _erro = 'Erro ao remover: ${response.statusCode}';
-        print('❌ Erro: $_erro');
+        print('Erro: $_erro');
         return false;
       }
     } catch (e) {
       _erro = 'Erro ao remover empréstimo: $e';
-      print('❌ Erro: $_erro');
+      print('Erro: $_erro');
       return false;
     }
   }
@@ -159,7 +159,7 @@ class EmprestimoController {
         "livro": livro,
       });
 
-      print('🟡 PUT request to: $url');
+      print('PUT request to: $url');
       print('Body: $body');
 
       final response = await http.put(
@@ -185,12 +185,12 @@ class EmprestimoController {
         return true;
       } else {
         _erro = 'Erro ao atualizar: ${response.statusCode}';
-        print('❌ Erro: $_erro');
+        print('Erro: $_erro');
         return false;
       }
     } catch (e) {
       _erro = 'Erro ao atualizar empréstimo: $e';
-      print('❌ Erro: $_erro');
+      print('Erro: $_erro');
       return false;
     }
   }

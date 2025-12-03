@@ -126,7 +126,7 @@ class LivroController {
     } catch (e) {
       _error = 'Erro de conexão: $e';
       _isLoading = false;
-      print(' Erro ao alterar livro: $e');
+      print('Erro ao alterar livro: $e');
       return false;
     }
   }

@@ -210,10 +210,7 @@ class _CadastrosScreenState extends State<CadastrosScreen> {
       ),
     );
   }
-
-  // ============================================================
-  //                         UI DA TELA
-  // ============================================================
+  //UI DA TELA
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -11,7 +11,7 @@ class AuthController {
     final url = Uri.parse("${AppConfig.baseUrl}/auth/register");
     
     try {
-      print('📝 Registrando novo usuário em: $url');
+      print('Registrando novo usuário em: $url');
       
       final response = await http.post(
         url,
@@ -41,10 +41,10 @@ class AuthController {
         }
       }
       
-      print('❌ Falha no registro: ${response.statusCode}');
+      print('Falha no registro: ${response.statusCode}');
       return false;
     } catch (e) {
-      print('❌ Erro ao registrar: $e');
+      print('Erro ao registrar: $e');
       return false;
     }
   }
@@ -54,7 +54,7 @@ class AuthController {
     final url = Uri.parse("${AppConfig.baseUrl}/auth/login");
     
     try {
-      print('🔐 Tentando login em: $url');
+      print('Tentando login em: $url');
       
       final response = await http.post(
         url,
@@ -83,10 +83,10 @@ class AuthController {
         }
       }
       
-      print('❌ Falha no login: ${response.statusCode}');
+      print('Falha no login: ${response.statusCode}');
       return false;
     } catch (e) {
-      print('❌ Erro ao fazer login: $e');
+      print('Erro ao fazer login: $e');
       return false;
     }
   }

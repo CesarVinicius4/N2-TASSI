@@ -33,7 +33,7 @@ class ApiService {
           .get(url, headers: headers)
           .timeout(timeoutDuration);
     } catch (e) {
-      print('❌ GET request failed: $e');
+      print(' GET request failed: $e');
       rethrow;
     }
   }
@@ -43,7 +43,7 @@ class ApiService {
     final url = Uri.parse("${AppConfig.baseUrl}$endpoint");
 
     try {
-      print('🟢 POST request to: $url');
+      print(' POST request to: $url');
       print('📦 Body: ${jsonEncode(body)}');
       
       final headers = {
@@ -59,7 +59,7 @@ class ApiService {
           .post(url, headers: headers, body: jsonEncode(body))
           .timeout(timeoutDuration);
     } catch (e) {
-      print('❌ POST request failed: $e');
+      print(' POST request failed: $e');
       rethrow;
     }
   }
@@ -69,7 +69,7 @@ class ApiService {
     final url = Uri.parse("${AppConfig.baseUrl}$endpoint");
 
     try {
-      print('🟡 PUT request to: $url');
+      print(' PUT request to: $url');
       
       final headers = {
         "Content-Type": "application/json",
@@ -84,7 +84,7 @@ class ApiService {
           .put(url, headers: headers, body: jsonEncode(body))
           .timeout(timeoutDuration);
     } catch (e) {
-      print('❌ PUT request failed: $e');
+      print(' PUT request failed: $e');
       rethrow;
     }
   }
@@ -94,7 +94,7 @@ class ApiService {
     final url = Uri.parse("${AppConfig.baseUrl}$endpoint");
 
     try {
-      print('🔴 DELETE request to: $url');
+      print(' DELETE request to: $url');
       
       final headers = {
         "Content-Type": "application/json",
@@ -109,7 +109,7 @@ class ApiService {
           .delete(url, headers: headers)
           .timeout(timeoutDuration);
     } catch (e) {
-      print('❌ DELETE request failed: $e');
+      print(' DELETE request failed: $e');
       rethrow;
     }
   }

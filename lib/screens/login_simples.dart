@@ -40,7 +40,7 @@ class _LoginSimplesState extends State<LoginSimples> {
       widget.onLoginSuccess();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ Falha no login - Credenciais inválidas'), backgroundColor: Colors.red),
+        const SnackBar(content: Text(' Falha no login - Credenciais inválidas'), backgroundColor: Colors.red),
       );
     }
     
@@ -78,7 +78,7 @@ class _LoginSimplesState extends State<LoginSimples> {
       widget.onLoginSuccess();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ Erro ao registrar - Email pode já estar em uso'), backgroundColor: Colors.red),
+        const SnackBar(content: Text(' Erro ao registrar - Email pode já estar em uso'), backgroundColor: Colors.red),
       );
     }
     
